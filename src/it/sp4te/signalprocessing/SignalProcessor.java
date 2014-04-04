@@ -103,11 +103,13 @@ public class SignalProcessor {
 	 * @param numCampioni
 	 * @return Segnale discreto
 	 */
-	private static Signal lowPassFilter(double band, int numCampioni) {
+	private static Signal lowPassFilter(double band) {
 		
 		//int numCampioni = 9;
-		double tc = 1/(2*band);
-		//int numCampioni = (int)tc*10 - 1;
+		double fs = 2 * band;
+		double tc = 1/fs;
+		System.out.println(tc);
+		int numCampioni = (int)tc*10 + 1;
 		Complex[] values = new Complex[numCampioni];
 		int simmetria = numCampioni / 2;
 		
@@ -132,7 +134,7 @@ public class SignalProcessor {
 		Complex values[] = new Complex[numCampioni];
 		int simmetria = numCampioni/2;
 		for (int n = -simmetria; n <= simmetria; n++) {
-			double res = 2*band*sinc(n,2*band) * Math.cos(freq);
+			double res = 2*band*sinc(n,2*band) * Math.cos(2*Math.PI*freq*n);
 			Complex c = new Complex(res,0);
 			values[n+simmetria] = c;
 		}
@@ -168,7 +170,7 @@ public class SignalProcessor {
 
 		// esempio convoluzione tra Complessi		
 		Complex[] vet1 = {new Complex(3,0), new Complex(2,0), new Complex(1,0)};
-		Complex[] vet2 = {new Complex(1,0), new Complex(1,0), new Complex(2,0), new Complex(1,0)};
+		Complex[] vet2 = {new Complex(1,0), new Complex(2,0), new Complex(1,0), new Complex(1,0)};
 		
 		Complex[] vet3 = SignalProcessor.convoluzione(vet1, vet2);
 		System.out.println("\n----Convoluzione vet1 vet2\n");
@@ -176,14 +178,14 @@ public class SignalProcessor {
 			System.out.println(vet3[i].toString());
 		
 		//esempio di filtraggio (convoluzione tra un segnale e il filtro passa-basso)
-		Signal lpf = lowPassFilter(0.25,5);
+		Signal lpf = lowPassFilter(0.25);
 		Signal s = new Signal(vet1);
 		Signal filtrato = SignalProcessor.convoluzione(s, lpf);
 		System.out.println("\n----PassaBasso\n");
 		System.out.println(filtrato.toString());
 		
 		System.out.println("\n----PassaBanda\n");
-		Signal bpf = bandPassFilter(1000, 100, 5);
+		Signal bpf = bandPassFilter(100, 0.25, 5);
 		Signal filtratoBPF = SignalProcessor.convoluzione(s, bpf);
 		System.out.println(filtratoBPF.toString());
 		
