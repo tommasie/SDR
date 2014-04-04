@@ -16,9 +16,9 @@ public class SignalProcessor {
 	/**
 	 * NB La funzione length degli array restuisce la lunghezza dell'array che non 
 	 * coincide con la numerazione degli indici!
-	 * pertanto per applicare correttamente la formula della convoluzione � necessario prestare un po' 
-	 * di attenzione agli indici con cui andiamo a lavorare per definire l�indice j per il ciclo for 
-	 * della traslazione temporale in maniera dinamica in modo da saltare i casi in cui l�indice 
+	 * pertanto per applicare correttamente la formula della convoluzione è necessario prestare un po' 
+	 * di attenzione agli indici con cui andiamo a lavorare per definire l'indice j per il ciclo for 
+	 * della traslazione temporale in maniera dinamica in modo da saltare i casi in cui l'indice 
 	 * j sia maggiore delle dimensione delle sequenze
 	 *
 	 * @param v1
@@ -103,19 +103,16 @@ public class SignalProcessor {
 	 * @param numCampioni
 	 * @return Segnale discreto
 	 */
-	private static Signal lowPassFilter(double band) {
-		/*
-		 * multiplo di 9, eg 1 campione per lobo -> 9 campioni; 2 campioni per lobo -> 18 campioni
-		 */
+	private static Signal lowPassFilter(double band, int numCampioni) {
+		
 		//int numCampioni = 9;
 		double tc = 1/(2*band);
-		int numCampioni = (int)tc*10 + 1;
+		//int numCampioni = (int)tc*10 - 1;
 		Complex[] values = new Complex[numCampioni];
 		int simmetria = numCampioni / 2;
 		
 		for(int n = - simmetria; n <= simmetria; n++){
 			double realval = 2* band * sinc(n, 2 * band);
-			System.out.println(realval);
 			values[n + simmetria] = new Complex(realval, 0);
 		}
 		
@@ -129,15 +126,13 @@ public class SignalProcessor {
 	 * @param band larghezza di banda centrata in freq
 	 * @return segnale filtrato all'interno di band
 	 */
-	private static Signal bandPassFilter(double freq, double band) {
+	private static Signal bandPassFilter(double freq, double band, int numCampioni) {
 		double tc = 1 / (2*band);
-		int numCampioni = 10*(int)tc + 1;
+		//int numCampioni = 10*(int)tc + 1;
 		Complex values[] = new Complex[numCampioni];
 		int simmetria = numCampioni/2;
-		double upper = freq + band/2;
-		double lower = freq - band/2;
 		for (int n = -simmetria; n <= simmetria; n++) {
-			double res = 2*upper*sinc(n,2*upper) - 2*lower*sinc(n,2*lower);
+			double res = 2*band*sinc(n,2*band) * Math.cos(freq);
 			Complex c = new Complex(res,0);
 			values[n+simmetria] = c;
 		}
@@ -161,10 +156,6 @@ public class SignalProcessor {
 		return signal;
 	}
 	
-	
-	
-	
-	
 	public static void main(String[] args){
 
 		// Esempio convoluzione tra reali
@@ -177,21 +168,22 @@ public class SignalProcessor {
 
 		// esempio convoluzione tra Complessi		
 		Complex[] vet1 = {new Complex(3,0), new Complex(2,0), new Complex(1,0)};
-		Complex[] vet2 = {new Complex(1,0), new Complex(2,0), new Complex(1,0), new Complex(1,0)};
+		Complex[] vet2 = {new Complex(1,0), new Complex(1,0), new Complex(2,0), new Complex(1,0)};
 		
 		Complex[] vet3 = SignalProcessor.convoluzione(vet1, vet2);
+		System.out.println("\n----Convoluzione vet1 vet2\n");
 		for(int i= 0; i< vet3.length;i++)
 			System.out.println(vet3[i].toString());
 		
 		//esempio di filtraggio (convoluzione tra un segnale e il filtro passa-basso)
-		Signal lpf = lowPassFilter(0.25);
+		Signal lpf = lowPassFilter(0.25,5);
 		Signal s = new Signal(vet1);
 		Signal filtrato = SignalProcessor.convoluzione(s, lpf);
 		System.out.println("\n----PassaBasso\n");
 		System.out.println(filtrato.toString());
 		
 		System.out.println("\n----PassaBanda\n");
-		Signal bpf = bandPassFilter(100, 0.25);
+		Signal bpf = bandPassFilter(1000, 100, 5);
 		Signal filtratoBPF = SignalProcessor.convoluzione(s, bpf);
 		System.out.println(filtratoBPF.toString());
 		
