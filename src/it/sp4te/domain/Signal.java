@@ -27,8 +27,9 @@ public class Signal {
 
 	public String toString(){
 		String s = "";
-		for(int i=0; i<this.getLength(); i++)
+		for(int i=0; i<this.getLength() - 1; i++)
 			s+=this.values[i].toString()+", ";
+		s+=this.values[this.getLength()-1].toString();
 		return s;
 	}
 	
