@@ -143,10 +143,10 @@ public class SignalProcessor {
 		else numCampioni = fattore;
 		Complex values[] = new Complex[numCampioni];
 		int simmetria = numCampioni/2;
-		for (int n = 0; n < numCampioni; n++) {
+		for (int n = -simmetria; n < simmetria; n++) {
 			double res = 2*band*sinc(n,2*band) * Math.cos(2*Math.PI*freq*n);
 			Complex c = new Complex(res,0);
-			values[n] = c;
+			values[n+simmetria] = c;
 		}
 		return new Signal(values);
 	}
