@@ -108,8 +108,11 @@ public class SignalProcessor {
 		//int numCampioni = 9;
 		double fs = 2 * band;
 		double tc = 1/fs;
-		System.out.println(tc);
-		int numCampioni = (int)tc*10 + 1;
+		int numCampioni;
+		int fattore = (int)(tc*10);
+		if(fattore%2 == 0)
+			numCampioni = fattore - 1;
+		else numCampioni = fattore;
 		Complex[] values = new Complex[numCampioni];
 		int simmetria = numCampioni / 2;
 		
@@ -119,24 +122,31 @@ public class SignalProcessor {
 		}
 		
 		Signal lpf = new Signal(values);
-		
+		System.out.println(numCampioni);
 		return lpf;
 	}
 	/**
-	 * filtro passa-banda -> rect traslata -> sinc moltiplicata per esponenziale
+	 * filtro passa-banda -> rect di banda band centrata nell'origine convoluta 
+	 * con due delta centrate in -freq e +freq, nel dominio del tempo 
+	 * equivale alla sinc moltiplicata per un coseno
 	 * @param freq frequenza centrale
 	 * @param band larghezza di banda centrata in freq
 	 * @return segnale filtrato all'interno di band
 	 */
-	private static Signal bandPassFilter(double freq, double band, int numCampioni) {
-		double tc = 1 / (2*band);
-		//int numCampioni = 10*(int)tc + 1;
+	private static Signal bandPassFilter(double freq, double band) {
+		double fs = 2 * band;
+		double tc = 1/fs;
+		int numCampioni;
+		int fattore = (int)(tc*10);
+		if(fattore%2 == 0)
+			numCampioni = fattore - 1;
+		else numCampioni = fattore;
 		Complex values[] = new Complex[numCampioni];
 		int simmetria = numCampioni/2;
-		for (int n = -simmetria; n <= simmetria; n++) {
+		for (int n = 0; n < numCampioni; n++) {
 			double res = 2*band*sinc(n,2*band) * Math.cos(2*Math.PI*freq*n);
 			Complex c = new Complex(res,0);
-			values[n+simmetria] = c;
+			values[n] = c;
 		}
 		return new Signal(values);
 	}
@@ -178,14 +188,14 @@ public class SignalProcessor {
 			System.out.println(vet3[i].toString());
 		
 		//esempio di filtraggio (convoluzione tra un segnale e il filtro passa-basso)
-		Signal lpf = lowPassFilter(0.25);
+		Signal lpf = lowPassFilter(0.5);
 		Signal s = new Signal(vet1);
 		Signal filtrato = SignalProcessor.convoluzione(s, lpf);
 		System.out.println("\n----PassaBasso\n");
 		System.out.println(filtrato.toString());
 		
 		System.out.println("\n----PassaBanda\n");
-		Signal bpf = bandPassFilter(100, 0.25, 5);
+		Signal bpf = bandPassFilter(100, 1);
 		Signal filtratoBPF = SignalProcessor.convoluzione(s, bpf);
 		System.out.println(filtratoBPF.toString());
 		
