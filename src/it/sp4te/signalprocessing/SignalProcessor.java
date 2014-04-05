@@ -124,9 +124,6 @@ public class SignalProcessor {
 		return lpf;
 	}
 	/**
-	 * filtro passa-banda -> rect di banda band centrata nell'origine convoluta 
-	 * con due delta centrate in -freq e +freq, nel dominio del tempo 
-	 * equivale alla sinc moltiplicata per un coseno
 	 * @param freq frequenza centrale
 	 * @param band larghezza di banda centrata in freq
 	 * @return segnale filtrato all'interno di band
@@ -142,7 +139,7 @@ public class SignalProcessor {
 		Complex values[] = new Complex[numCampioni];
 		int simmetria = numCampioni/2;
 		for (int n = -simmetria; n <= simmetria; n++) {
-			double res = 2*band*sinc(n,2*band) * Math.cos(2*Math.PI*freq*n);
+			double res = fs*sinc(n,2*fs) * 2*Math.cos(2*Math.PI*freq*n);
 			Complex c = new Complex(res,0);
 			values[n+simmetria] = c;
 		}
@@ -189,15 +186,16 @@ public class SignalProcessor {
 		Signal lpf = lowPassFilter(0.5);
 		System.out.println("\n----PassaBasso\n");
 		System.out.println("Numero campioni LPF: "+lpf.getLength());
-		Signal s = new Signal(vet1);
+		Signal s = new Signal(vet3);
 		Signal filtrato = SignalProcessor.convoluzione(s, lpf);
 		System.out.println(filtrato.toString());
 		
-		Signal bpf = bandPassFilter(200, 0.5);
+		Signal bpf = bandPassFilter(0.5, 0.3);
 		System.out.println("\n----PassaBanda\n");
 		System.out.println("Numero campioni BPF: "+bpf.getLength());
 		Signal filtratoBPF = SignalProcessor.convoluzione(s, bpf);
 		System.out.println(filtratoBPF.toString());
+		System.out.println(Math.cos(2*Math.PI*0.5));
 		
 	}
 }
