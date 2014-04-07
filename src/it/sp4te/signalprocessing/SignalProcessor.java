@@ -163,6 +163,18 @@ public class SignalProcessor {
 		return signal;
 	}
 	
+	public static Signal espansione(Signal in, double freq) {
+		return null;
+	}
+	
+	public static Signal interpolazione(Signal in, double freq) {
+		return null;
+	}
+	
+	public static Signal decimazione(Signal in, double freq) {
+		return null;
+	}
+	
 	public static void main(String[] args){
 
 		// Esempio convoluzione tra reali
