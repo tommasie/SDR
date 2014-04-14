@@ -172,6 +172,8 @@ public class SignalProcessor {
 	}
 	
 	public static Signal decimazione(Signal in, int F2) {
+		if(F2 == 1)
+			return in;
 		Complex[] vectorIn = in.getValues();
 		Complex[] vectorDecimato = new Complex[vectorIn.length/F2];
 		
