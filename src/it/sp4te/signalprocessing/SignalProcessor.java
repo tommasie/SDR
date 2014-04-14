@@ -196,6 +196,7 @@ public class SignalProcessor {
 	/**
 	 * Primo elemento del vettore : F1
 	 * Secondo elemento del vettore : F2
+	 * NB T1 e T2 devono avere stesso ordine di grandezza
 	 * @param T1
 	 * @param T2
 	 * @return
@@ -244,5 +245,8 @@ public class SignalProcessor {
 		System.out.println(filtratoBPF.toString());
 		System.out.println(Math.cos(2*Math.PI*0.5));
 		
+		System.out.println("\n-----Verifica fattori\n");
+		int vect[] = calcolaFattori(18, 24);
+		System.out.println("F1: "+vect[0]+"\nF2: "+vect[1]);
 	}
 }

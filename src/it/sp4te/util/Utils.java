@@ -9,8 +9,4 @@ public class Utils {
 		}
 		else return mcd(b,a);
 	}
-	
-	public static void main(String[] args) {
-		System.out.println(mcd(42,56));
-	}
 }
