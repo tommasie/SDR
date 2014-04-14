@@ -163,16 +163,27 @@ public class SignalProcessor {
 		return signal;
 	}
 	
-	public static Signal espansione(Signal in, double freq) {
+	public static Signal espansione(Signal in, int F1) {
 		return null;
 	}
 	
-	public static Signal interpolazione(Signal in, double freq) {
+	public static Signal interpolazione(Signal in, int F1) {
 		return null;
 	}
 	
-	public static Signal decimazione(Signal in, double freq) {
-		return null;
+	public static Signal decimazione(Signal in, int F2) {
+		Complex[] vectorIn = in.getValues();
+		Complex[] vectorDecimato = new Complex[vectorIn.length/F2];
+		
+		int j = 0;
+		for (int i = 0; i < vectorIn.length; i++) {
+			if(i % F2 ==0 && j <vectorDecimato.length) {
+				vectorDecimato[j] = vectorIn[i];
+				j++;
+			}
+				
+		}
+		return new Signal(vectorDecimato);
 	}
 	
 	public static void main(String[] args){
