@@ -9,6 +9,7 @@
 package it.sp4te.signalprocessing;
 
 import it.sp4te.domain.*;
+import it.sp4te.util.Utils;
 
 
 public class SignalProcessor {
@@ -186,6 +187,27 @@ public class SignalProcessor {
 				
 		}
 		return new Signal(vectorDecimato);
+	}
+	
+	public static Signal cambioTassoCampionamento(int T1, int T2, Signal signalIN) {
+		return null;
+	}
+	
+	/**
+	 * Primo elemento del vettore : F1
+	 * Secondo elemento del vettore : F2
+	 * @param T1
+	 * @param T2
+	 * @return
+	 */
+	public static int[] calcolaFattori(int T1, int T2) {
+		int[] res = new int[2];
+		int mcd = Utils.mcd(T1, T2);
+		int F1 = T1/mcd;
+		int F2 = T2/mcd;
+		res[0] = F1;
+		res[1] = F2;
+		return res;
 	}
 	
 	public static void main(String[] args){
