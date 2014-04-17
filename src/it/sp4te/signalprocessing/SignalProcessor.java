@@ -109,10 +109,10 @@ public class SignalProcessor {
 		double fs = 2 * band;
 		double tc = 1/fs;
 		int numCampioni;
-		int fattore = (int)(tc*10);
-		if(fattore%2 == 0)
-			numCampioni = fattore - 1;
-		else numCampioni = fattore;
+		int lunghezza = (int)(tc*10);
+		if(lunghezza%2 == 0)
+			numCampioni = lunghezza - 1;
+		else numCampioni = lunghezza;
 		Complex[] values = new Complex[numCampioni];
 		int simmetria = numCampioni / 2;
 		
@@ -124,6 +124,26 @@ public class SignalProcessor {
 		Signal lpf = new Signal(values);
 		return lpf;
 	}
+	
+	private static Signal lowPassFilter(double band, double f1) {
+		 
+        double fs = 2*band;
+        double tc = 1/fs;
+        int numCampioni = (int)tc*10 +1;
+        Complex[] values = new Complex[numCampioni];
+        int simmetria = (numCampioni) / 2;
+
+        for(int n = - simmetria; n <= simmetria; n++){
+                double realval = f1*2* band * sinc(n, 2 * band);
+                System.out.println(realval);
+                values[n + simmetria] = new Complex(realval, 0);
+        }
+
+        Signal lpf = new Signal(values);
+
+        return lpf;
+	}
+	
 	/**
 	 * @param freq frequenza centrale
 	 * @param band larghezza di banda centrata in freq
@@ -164,17 +184,42 @@ public class SignalProcessor {
 		return signal;
 	}
 	
-	public static Signal espansione(Signal in, int F1) {
-		return null;
+	public static Signal espansione(Signal segnaleIn, int F1){
+		 
+        Complex[] sequenzaIn = segnaleIn.values;
+        Complex[] espansa = new Complex[sequenzaIn.length * F1];
+        int j=0;
+        for (int i = 0; i < espansa.length; i++){
+                if(i%F1==0){
+                        espansa[i]=sequenzaIn[j];
+                        j++;
+                }else{
+                        espansa[i] = new Complex(0,0);
+                }
+        }
+
+        return new Signal(espansa) ;
 	}
 	
-	public static Signal interpolazione(Signal in, int F1) {
-		return null;
-	}
+	public static Signal interpolazione(Signal signalIn, int F1){
+		 
+         double band = 1/(2.0*F1);
+         Signal lpf = lowPassFilter(band, F1);
+         Signal interpolato = convoluzione(signalIn, lpf);
+         Complex[] val = new Complex[signalIn.getLength()];
+         int n = (lpf.getLength() - 1)/2;
+         int j = 0;
+
+         for (int i = n; i < interpolato.getLength() - n; i++){
+                 val[j] = interpolato.values[i];
+                 j++;
+         }
+
+         return new Signal(val);
+
+ }
 	
 	public static Signal decimazione(Signal in, int F2) {
-		if(F2 == 1)
-			return in;
 		Complex[] vectorIn = in.getValues();
 		Complex[] vectorDecimato = new Complex[vectorIn.length/F2];
 		
@@ -190,17 +235,14 @@ public class SignalProcessor {
 	}
 	
 	public static Signal cambioTassoCampionamento(int T1, int T2, Signal signalIN) {
-		return null;
+		int F1 = calcolaFattori(T1, T2)[0];
+		int F2 = calcolaFattori(T1, T2)[1];
+		Signal res = espansione(signalIN,F1);
+		res = interpolazione(res,F1);
+		res = decimazione(res,F2);
+		return res;
 	}
 	
-	/**
-	 * Primo elemento del vettore : F1
-	 * Secondo elemento del vettore : F2
-	 * NB T1 e T2 devono avere stesso ordine di grandezza
-	 * @param T1
-	 * @param T2
-	 * @return
-	 */
 	public static int[] calcolaFattori(int T1, int T2) {
 		int[] res = new int[2];
 		int mcd = Utils.mcd(T1, T2);
