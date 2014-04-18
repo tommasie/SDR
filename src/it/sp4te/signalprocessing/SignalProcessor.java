@@ -129,13 +129,16 @@ public class SignalProcessor {
 		 
         double fs = 2*band;
         double tc = 1/fs;
-        int numCampioni = (int)tc*10 +1;
+        int numCampioni;
+        int lunghezza = (int)(tc*10);
+		if(lunghezza%2 == 0)
+			numCampioni = lunghezza - 1;
+		else numCampioni = lunghezza;
         Complex[] values = new Complex[numCampioni];
         int simmetria = (numCampioni) / 2;
 
         for(int n = - simmetria; n <= simmetria; n++){
                 double realval = f1*2* band * sinc(n, 2 * band);
-                System.out.println(realval);
                 values[n + simmetria] = new Complex(realval, 0);
         }
 
@@ -237,8 +240,15 @@ public class SignalProcessor {
 	public static Signal cambioTassoCampionamento(int T1, int T2, Signal signalIN) {
 		int F1 = calcolaFattori(T1, T2)[0];
 		int F2 = calcolaFattori(T1, T2)[1];
-		Signal res = espansione(signalIN,F1);
-		res = interpolazione(res,F1);
+		Signal res = null;
+		if (F1 == 1)
+			res = signalIN;
+		else {
+			res = espansione(signalIN,F1);
+			res = interpolazione(res,F1);
+		}
+		if (F2 == 1)
+			return res;
 		res = decimazione(res,F2);
 		return res;
 	}
@@ -287,8 +297,16 @@ public class SignalProcessor {
 		System.out.println(filtratoBPF.toString());
 		System.out.println(Math.cos(2*Math.PI*0.5));
 		
+		//Verifica calcolo fattori
 		System.out.println("\n-----Verifica fattori\n");
 		int vect[] = calcolaFattori(18, 24);
 		System.out.println("F1: "+vect[0]+"\nF2: "+vect[1]);
+		
+		//Verifica cambio tasso campionamento
+		System.out.println("\n-----Cambio tasso\n");
+		Signal s1 = new Signal(vet2);
+		Signal s2 = cambioTassoCampionamento(18, 24, s1);
+		System.out.println(s1.toString() + "\n\n");
+		System.out.println(s2.toString());
 	}
 }
